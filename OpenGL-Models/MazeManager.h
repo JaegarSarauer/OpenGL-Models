@@ -24,6 +24,7 @@ struct MazeStruct;
 
 - (MazeSquare *)getMazePosition:(int)x y:(int)y;
 - (void)createMaze;
+- (bool)isInBounds:(int)x y:(int)y;
 
 @end
 

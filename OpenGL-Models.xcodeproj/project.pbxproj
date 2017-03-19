@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EE729A3E1E6E87A70079965E /* crate.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EE729A3D1E6E87A70079965E /* crate.jpg */; };
+		EE66A6681E7E74F6001583CC /* AIMovement.m in Sources */ = {isa = PBXBuildFile; fileRef = EE66A6671E7E74F5001583CC /* AIMovement.m */; };
 		EE729A401E70A4980079965E /* textures in Resources */ = {isa = PBXBuildFile; fileRef = EE729A3F1E70A4980079965E /* textures */; };
 		EECEF2871E69357A0023C09A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EECEF2861E69357A0023C09A /* main.m */; };
 		EECEF28A1E69357A0023C09A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EECEF2891E69357A0023C09A /* AppDelegate.m */; };
@@ -24,7 +24,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		EE729A3D1E6E87A70079965E /* crate.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = crate.jpg; sourceTree = "<group>"; };
+		EE66A6671E7E74F5001583CC /* AIMovement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIMovement.m; sourceTree = "<group>"; };
+		EE66A6691E7E7512001583CC /* AIMovement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AIMovement.h; sourceTree = "<group>"; };
 		EE729A3F1E70A4980079965E /* textures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = textures; path = "OpenGL-Models/textures"; sourceTree = "<group>"; };
 		EECEF2821E6935790023C09A /* OpenGL-Models.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OpenGL-Models.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECEF2861E69357A0023C09A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -79,7 +80,8 @@
 		EECEF2841E6935790023C09A /* OpenGL-Assign2 */ = {
 			isa = PBXGroup;
 			children = (
-				EE729A3D1E6E87A70079965E /* crate.jpg */,
+				EE66A6691E7E7512001583CC /* AIMovement.h */,
+				EE66A6671E7E74F5001583CC /* AIMovement.m */,
 				EECEF2A01E6936620023C09A /* CPP */,
 				EECEF2881E69357A0023C09A /* AppDelegate.h */,
 				EECEF2891E69357A0023C09A /* AppDelegate.m */,
@@ -183,7 +185,6 @@
 				EECEF2941E69357A0023C09A /* Main.storyboard in Resources */,
 				EECEF28E1E69357A0023C09A /* Shader.vsh in Resources */,
 				EECEF2961E69357A0023C09A /* Assets.xcassets in Resources */,
-				EE729A3E1E6E87A70079965E /* crate.jpg in Resources */,
 				EECEF2991E69357A0023C09A /* LaunchScreen.storyboard in Resources */,
 				EECEF28C1E69357A0023C09A /* Shader.fsh in Resources */,
 			);
@@ -200,6 +201,7 @@
 				EECEF28A1E69357A0023C09A /* AppDelegate.m in Sources */,
 				EECEF2911E69357A0023C09A /* GameViewController.m in Sources */,
 				EECEF2A61E6936860023C09A /* maze.cpp in Sources */,
+				EE66A6681E7E74F6001583CC /* AIMovement.m in Sources */,
 				EECEF2AC1E695A920023C09A /* MazeSquare.m in Sources */,
 				EECEF2A81E6938CC0023C09A /* MazeManager.mm in Sources */,
 				EECEF2871E69357A0023C09A /* main.m in Sources */,

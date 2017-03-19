@@ -94,6 +94,7 @@
                             <outletCollection property="gestureRecognizers" destination="bSU-hF-ghN" appends="YES" id="KYT-C0-rFD"/>
                             <outletCollection property="gestureRecognizers" destination="L6u-j7-2Je" appends="YES" id="MJq-Ac-nXM"/>
                             <outletCollection property="gestureRecognizers" destination="h0Y-9R-Krq" appends="YES" id="wsk-NI-Iiw"/>
+                            <outletCollection property="gestureRecognizers" destination="gtM-iE-2E7" appends="YES" id="lJZ-NM-hVC"/>
                         </connections>
                     </view>
                     <connections>
@@ -102,12 +103,17 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer numberOfTapsRequired="2" id="gtM-iE-2E7" userLabel="3FingerDoubleTap">
+                    <connections>
+                        <action selector="ModelClick:" destination="BV1-FR-VrT" id="j33-jR-ktl"/>
+                    </connections>
+                </tapGestureRecognizer>
                 <tapGestureRecognizer numberOfTapsRequired="2" numberOfTouchesRequired="2" id="V0s-S3-htN" userLabel="2FingerDoubleTap">
                     <connections>
                         <action selector="OnTap:" destination="BV1-FR-VrT" id="edT-1E-LXk"/>
                     </connections>
                 </tapGestureRecognizer>
-                <tapGestureRecognizer numberOfTapsRequired="2" id="h0Y-9R-Krq" userLabel="DoubleTap">
+                <tapGestureRecognizer numberOfTapsRequired="2" numberOfTouchesRequired="4" id="h0Y-9R-Krq" userLabel="DoubleTap">
                     <connections>
                         <action selector="DoubleTap:" destination="BV1-FR-VrT" id="m6q-il-7jr"/>
                     </connections>

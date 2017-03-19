@@ -33,6 +33,10 @@ struct MazeStruct {
     maze->Create();
 }
 
+- (bool)isInBounds:(int)x y:(int)y {
+    return (x >= 0 && x < mazeWidth && y >= 0 && y < mazeHeight);
+}
+
 /*- (MazeSquare *)getStartPosition {
     //MazeCell sq = maze->mazeSet[0];
 }*/

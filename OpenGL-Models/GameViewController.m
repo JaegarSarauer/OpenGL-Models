@@ -175,6 +175,7 @@ GLuint cubeIndices[36] =
     
     GLKMatrix4 _modelViewProjectionMatrix;
     GLKMatrix3 _normalMatrix;
+    GLKMatrix4 projectionMatrix;
     
     NSMutableArray *squares;
     
@@ -214,6 +215,7 @@ GLuint cubeIndices[36] =
     BOOL isFlashlight;
     
     MazeManager *maze;
+    AIMovement *AI;
     
     int mazeXPos;
     int mazeYPos;
@@ -263,6 +265,9 @@ GLuint cubeIndices[36] =
     
     maze = [[MazeManager alloc]init];
     [maze createMaze];
+    
+    AI = [[AIMovement alloc] init:maze];
+    
     
     squares = [NSMutableArray arrayWithCapacity:maze->mazeWidth * maze->mazeHeight];
     
@@ -446,7 +451,7 @@ GLuint cubeIndices[36] =
 {
     float aspect = fabs(self.view.bounds.size.width / self.view.bounds.size.height);
     //used in real world viewing
-    GLKMatrix4 projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(70), aspect, 0.001f, 100.0f);
+    projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(70), aspect, 0.001f, 100.0f);
     
     //used in minimap viewing
     GLKMatrix4 orthoMatrix = GLKMatrix4MakeOrtho(-maze->mazeWidth * aspect, maze->mazeWidth * aspect, -maze->mazeHeight, maze->mazeHeight, 0.001f, 100.0f);
@@ -454,12 +459,14 @@ GLuint cubeIndices[36] =
 
     self.effect.transform.projectionMatrix = projectionMatrix;
     
+    [AI move];
+    
     //GLKMatrix4 boxStart = GLKMatrix4MakeTranslation(mazeXPos, 0.0f, mazeYPos - 1);
     //boxStart = GLKMatrix4Scale(boxStart, 2.0f, 2.0f, 4.0f);
     
     GLKMatrix4 boxMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, 0.0f);
     boxMatrix = GLKMatrix4Rotate(boxMatrix, GLKMathDegreesToRadians(mazeViewRotate), 0.0f, 1.0f, 0.0f);
-    boxMatrix = GLKMatrix4Translate(boxMatrix, (mazeXPos), 0.0f, (mazeYPos - 1));
+    boxMatrix = GLKMatrix4Translate(boxMatrix, (AI->xPos + mazeXPos), 0.0f, (AI->yPos + mazeYPos));
     boxMatrix = GLKMatrix4Rotate(boxMatrix, GLKMathDegreesToRadians(cubeRotation), 1.0f, 1.0f, 1.0f);
     boxMatrix = GLKMatrix4Scale(boxMatrix, .2f, .2f, .2f);
     
@@ -826,6 +833,14 @@ GLuint cubeIndices[36] =
 - (IBAction)SwipeRight:(UISwipeGestureRecognizer *)sender {
     mazeViewRotateTo += 90;
 }
+- (IBAction)ModelClick:(UITapGestureRecognizer *)sender {
+    CGPoint screenSize = CGPointMake([UIScreen mainScreen].bounds.size.width / 2, [UIScreen mainScreen].bounds.size.height / 2);
+    CGPoint screenClick = [sender locationInView:nil];
+    CGPoint worldPoint = CGPointMake((screenClick.x / screenSize.x) - 1, (screenClick.y / screenSize.y) - 1);
+    NSLog(@"clickX: %f clickY: %f", worldPoint.x, worldPoint.y);
+}
+
+
 - (IBAction)SwipeLeft:(UISwipeGestureRecognizer *)sender {
     mazeViewRotateTo -= 90;
 }
