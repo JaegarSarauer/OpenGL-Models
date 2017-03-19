@@ -8,6 +8,7 @@
 
 #import "GameViewController.h"
 #import <OpenGLES/ES2/glext.h>
+#import "ModelLoader.h"
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -224,6 +225,9 @@ GLuint cubeIndices[36] =
     __weak IBOutlet UIView *ConsoleElement;
     __weak IBOutlet UILabel *PlayerDataLabel;
     
+    //Models
+    ModelLoader* modelLoader;
+    Model* model;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -256,6 +260,9 @@ GLuint cubeIndices[36] =
     view.context = self.context;
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     
+    modelLoader = [[ModelLoader alloc] init];
+    model = [modelLoader getModel:1];
+    //NSLog(@"%lu",(unsigned long)model->vertices.count);
     mazeXPos = 0;
     mazeYPos = 2;
     mazeViewRotate = 180;
@@ -369,10 +376,8 @@ GLuint cubeIndices[36] =
     
     glBindVertexArrayOES(0);
     
-    
     glGenVertexArraysOES(1, &_vertexBoxArray);
     glBindVertexArrayOES(_vertexBoxArray);
-    
     glGenBuffers(1, &_vertexBoxBuffer);
     glGenBuffers(1, &_normalBuffer);
     glGenBuffers(1, &_textureBuffer);
