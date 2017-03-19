@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 #include "MazeManager.h"
+#include "AIMovement.h"
 
 @interface GameViewController : GLKViewController
 
