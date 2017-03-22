@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E9E48AAF1E7DD10B00AB877A /* ModelLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E48AAE1E7DD10B00AB877A /* ModelLoader.m */; };
+		E9E48AB31E7DD37500AB877A /* Model.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E48AB21E7DD37500AB877A /* Model.m */; };
+		E9E48AB61E7DF9C100AB877A /* Model.obj in Resources */ = {isa = PBXBuildFile; fileRef = E9E48AB51E7DF9C100AB877A /* Model.obj */; };
+		EE729A3E1E6E87A70079965E /* crate.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EE729A3D1E6E87A70079965E /* crate.jpg */; };
 		EE66A6681E7E74F6001583CC /* AIMovement.m in Sources */ = {isa = PBXBuildFile; fileRef = EE66A6671E7E74F5001583CC /* AIMovement.m */; };
 		EE729A401E70A4980079965E /* textures in Resources */ = {isa = PBXBuildFile; fileRef = EE729A3F1E70A4980079965E /* textures */; };
 		EECEF2871E69357A0023C09A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EECEF2861E69357A0023C09A /* main.m */; };
@@ -24,6 +28,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E9E48AAE1E7DD10B00AB877A /* ModelLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModelLoader.m; sourceTree = "<group>"; };
+		E9E48AB01E7DD13100AB877A /* ModelLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelLoader.h; sourceTree = "<group>"; };
+		E9E48AB11E7DD36300AB877A /* Model.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Model.h; sourceTree = "<group>"; };
+		E9E48AB21E7DD37500AB877A /* Model.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Model.m; sourceTree = "<group>"; };
+		E9E48AB51E7DF9C100AB877A /* Model.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Model.obj; sourceTree = "<group>"; };
+		EE729A3D1E6E87A70079965E /* crate.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = crate.jpg; sourceTree = "<group>"; };
 		EE66A6671E7E74F5001583CC /* AIMovement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIMovement.m; sourceTree = "<group>"; };
 		EE66A6691E7E7512001583CC /* AIMovement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AIMovement.h; sourceTree = "<group>"; };
 		EE729A3F1E70A4980079965E /* textures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = textures; path = "OpenGL-Models/textures"; sourceTree = "<group>"; };
@@ -60,9 +70,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E9E48AB41E7DF9B400AB877A /* models */ = {
+			isa = PBXGroup;
+			children = (
+				E9E48AB51E7DF9C100AB877A /* Model.obj */,
+			);
+			name = models;
+			sourceTree = "<group>";
+		};
 		EECEF2791E6935790023C09A = {
 			isa = PBXGroup;
 			children = (
+				E9E48AB41E7DF9B400AB877A /* models */,
 				EE729A3F1E70A4980079965E /* textures */,
 				EECEF2841E6935790023C09A /* OpenGL-Assign2 */,
 				EECEF2831E6935790023C09A /* Products */,
@@ -98,6 +117,10 @@
 				EECEF2A91E693A190023C09A /* MazeManager.h */,
 				EECEF2AA1E695A830023C09A /* MazeSquare.h */,
 				EECEF2AB1E695A920023C09A /* MazeSquare.m */,
+				E9E48AAE1E7DD10B00AB877A /* ModelLoader.m */,
+				E9E48AB01E7DD13100AB877A /* ModelLoader.h */,
+				E9E48AB11E7DD36300AB877A /* Model.h */,
+				E9E48AB21E7DD37500AB877A /* Model.m */,
 			);
 			name = "OpenGL-Assign2";
 			path = "OpenGL-Models";
@@ -148,12 +171,14 @@
 		EECEF27A1E6935790023C09A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				KnownAssetTags = (
+					Model,
+				);
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Jaegar Sarauer";
 				TargetAttributes = {
 					EECEF2811E6935790023C09A = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 2592K8NH67;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -181,6 +206,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9E48AB61E7DF9C100AB877A /* Model.obj in Resources */,
 				EE729A401E70A4980079965E /* textures in Resources */,
 				EECEF2941E69357A0023C09A /* Main.storyboard in Resources */,
 				EECEF28E1E69357A0023C09A /* Shader.vsh in Resources */,
@@ -197,8 +223,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9E48AAF1E7DD10B00AB877A /* ModelLoader.m in Sources */,
 				EECEF2A51E6936860023C09A /* DisjointSet.cpp in Sources */,
 				EECEF28A1E69357A0023C09A /* AppDelegate.m in Sources */,
+				E9E48AB31E7DD37500AB877A /* Model.m in Sources */,
 				EECEF2911E69357A0023C09A /* GameViewController.m in Sources */,
 				EECEF2A61E6936860023C09A /* maze.cpp in Sources */,
 				EE66A6681E7E74F6001583CC /* AIMovement.m in Sources */,
@@ -324,7 +352,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 2592K8NH67;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "OpenGL-Models/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -337,7 +365,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 2592K8NH67;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "OpenGL-Models/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
