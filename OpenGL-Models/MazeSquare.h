@@ -56,10 +56,20 @@ typedef enum {FLOOR_SIDE = 0, NO_SIDES, LEFT_SIDE, RIGHT_SIDE, BOTH_SIDES} TEXTU
     
     GLKMatrix4 rightMinimapVerticies;
     GLKMatrix3 rightMinimapNormals;
+    
+    //lowest corner for collision
+    GLKVector3 collisionMin;
+    
+    //highest corner for collision
+    GLKVector3 collisionMax;
 }
 
-- (id)init:(bool)r left:(bool)l up:(bool)u down:(bool)d;
+- (id)init:(bool)r left:(bool)l up:(bool)u down:(bool)d x:(int)x z:(int)z;
 //- (GLKMatrix4)getVerteciesOfSide:(enum SIDE)side;
+
+- (bool)checkCollision:(SIDE)side minBox:(GLKVector3)minBox maxBox:(GLKVector3)maxBox;
+
+- (bool)inBounds:(SIDE)side objMin:(GLKVector3)objMin objMax:(GLKVector3)objMax otherMin:(GLKVector3)otherMin otherMax:(GLKVector3)otherMax;
 
 @end
 
