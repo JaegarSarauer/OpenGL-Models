@@ -928,44 +928,29 @@ GLuint cubeIndices[36] =
     mazeViewRotateTo += 90;
 }
 - (IBAction)ModelClick:(UITapGestureRecognizer *)sender {
-    //const CGPoint screenClick = [sender locationInView:[self view]];
-    /*GLint viewport[4];
-    //Get size of screen
-    glGetIntegerv(GL_VIEWPORT,viewport);
-    
-    GLubyte pixel[4];
-    //Read pixel from a specific point
-    glReadPixels(screenClick.x,viewport[3] - screenClick.y,1,1, GL_RGBA,GL_UNSIGNED_BYTE,(void *)pixel);
-    
-    int i;*/
-    
-    //CGPoint screenSize = CGPointMake([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
-    //CGPoint screenClick = [sender locationInView:[self view]];
-    //CGPoint worldPoint = CGPointMake((screenClick.x), (screenClick.y));
     const CGPoint screenClick = [sender locationInView:[self view]];
     GLKView *glkView = (GLKView*)[self view];
     UIImage *snapshot = [glkView snapshot];
     CGImageRef cgImage = [snapshot CGImage];
     float width = (float)CGImageGetWidth(cgImage);
-    float height = (float)CGImageGetHeight(cgImage);
+    //float height = (float)CGImageGetHeight(cgImage);
     CGDataProviderRef provider = CGImageGetDataProvider(cgImage);
     CFDataRef bitmapData = CGDataProviderCopyData(provider);
     const UInt8* data = CFDataGetBytePtr(bitmapData);
-    //TODO Continue here
     float offset = ((width * screenClick.y * 3.0f) + screenClick.x * 3.0f) * 3.0f;
     //UInt8 b = data[offset+0];
     float b = data[(int)offset+0];
     float g = data[(int)offset+1];
     float r = data[(int)offset+2];
     //float a = data[(int)offset+3];
-    CFRelease(bitmapData);
     NSLog(@"R:%f G:%f B:%f Offset:%f", r, g, b, offset);
     GLKVector4 objColor = GLKVector4Make(r/255.0f, g/255.0f, b/255.0f, 1.0f);
     
     if (objColor.r > 0.5f && objColor.g < 0.5f && objColor.b < 0.5f)
     {
-        NSLog(@"TAPPED MOTHERFUCKER");
+        NSLog(@"Tapped");
     }
+    CFRelease(bitmapData);
 }
 
 
