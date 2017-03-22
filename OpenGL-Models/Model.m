@@ -15,6 +15,10 @@
     vertices = [[NSMutableArray alloc] init];
     vertexNormals = [[NSMutableArray alloc] init];
     faces = [[NSMutableArray alloc] init];
+    verticeIndices = [[NSMutableArray alloc] init];
+    textureIndices = [[NSMutableArray alloc] init];
+    vertexNormalIndices = [[NSMutableArray alloc] init];
+    vertexTextures = [[NSMutableArray alloc] init];
     return self;
 }
 
@@ -48,6 +52,25 @@
 
 -(void)addFaces:(NSMutableArray*) face {
     [self->faces addObject:face];
+}
+
+-(void)addTextureVertex:(NSMutableArray*) vertex {
+    [vertexTextures addObject:vertex];
+}
+
+-(void)addVertexIndice:(int) indice {
+    NSNumber* index = [[NSNumber alloc] initWithInt:indice];
+    [verticeIndices addObject:index];
+}
+
+-(void)addVertexNormalIndice:(int) indice {
+    NSNumber* index = [[NSNumber alloc] initWithInt:indice];
+    [vertexNormalIndices addObject:index];
+}
+
+-(void)addTextureIndice:(int) indice {
+    NSNumber* index = [[NSNumber alloc] initWithInt:indice];
+    [textureIndices addObject:index];
 }
 
 @end

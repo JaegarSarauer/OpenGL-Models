@@ -15,6 +15,10 @@
     NSMutableArray *vertices;
     NSMutableArray *vertexNormals;
     NSMutableArray *faces;
+    NSMutableArray *vertexTextures;
+    NSMutableArray *verticeIndices;
+    NSMutableArray *textureIndices;
+    NSMutableArray *vertexNormalIndices;
 }
 -(id)initWithIdentifier:(NSString*)identifier;
 -(void)addVertices:(NSMutableArray*) verticesToAdd;
@@ -22,6 +26,11 @@
 -(void)addVertexNormals:(NSMutableArray*) normals;
 -(void)addVertexNormal:(NSMutableArray*) normal;
 -(void)addFaces:(NSMutableArray*) face;
+-(void)addTextureVertex:(NSMutableArray*) vertex;
+-(void)addVertexIndice:(int) indice;
+-(void)addVertexNormalIndice:(int) indice;
+-(void)addTextureIndice:(int) indice;
+
 @end
 
 #endif /* Model_h */

@@ -8,6 +8,7 @@
 
 #import "GameViewController.h"
 #import <OpenGLES/ES2/glext.h>
+#import "UIImage_UIExtension.h"
 #import "ModelLoader.h"
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -99,6 +100,8 @@ GLfloat gWallVertexData[72] =
     0.5f,  0.5f,  0.5f,
     0.5f,  0.5f, -0.5f,
 };
+
+GLfloat gModelNormalData[0] = {};
 
 GLfloat gCubeNormalData[72] = {
     0.0f, -1.0f, 0.0f,
@@ -230,6 +233,15 @@ GLuint cubeIndices[36] =
     //Models
     ModelLoader* modelLoader;
     Model* model;
+    NSMutableArray* modelTextures;
+    GLfloat* modelVertices;
+    GLfloat* modelTextureData;
+    GLuint* modelIndices;
+    GLfloat* modelNormals;
+    GLuint modelIndexBuffer;
+    GLuint modelNormalBuffer;
+    GLuint modelTextureBuffer;
+    GLuint modelTexture;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -243,7 +255,7 @@ GLuint cubeIndices[36] =
 - (BOOL)validateProgram:(GLuint)prog;
 - (GLuint *)getCorrectTexture:(TEXTURE_TYPE)tex;
 - (void) drawShape:(GLuint)tex array:(GLuint)vArray vertecies:(GLKMatrix4)vert normals:(GLKMatrix3)norm;
-
+-(void)convertModelDataToCArrays;
 @end
 
 @implementation GameViewController
@@ -264,6 +276,7 @@ GLuint cubeIndices[36] =
     
     modelLoader = [[ModelLoader alloc] init];
     model = [modelLoader getModel:1];
+    [self convertModelDataToCArrays];
     //NSLog(@"%lu",(unsigned long)model->vertices.count);
     mazeXPos = 0;
     mazeYPos = 2;
@@ -353,6 +366,7 @@ GLuint cubeIndices[36] =
     
     glEnable(GL_DEPTH_TEST);
     
+    //Walls start
     glGenVertexArraysOES(1, &_vertexArray);
     glBindVertexArrayOES(_vertexArray);
     
@@ -381,30 +395,34 @@ GLuint cubeIndices[36] =
     
     glBindVertexArrayOES(0);
     
+    
+    //Model Starts
     glGenVertexArraysOES(1, &_vertexBoxArray);
     glBindVertexArrayOES(_vertexBoxArray);
+    
     glGenBuffers(1, &_vertexBoxBuffer);
-    glGenBuffers(1, &_normalBuffer);
-    glGenBuffers(1, &_textureBuffer);
-    glGenBuffers(1, &_indexBuffer);
+    glGenBuffers(1, &modelNormalBuffer);
+    glGenBuffers(1, &modelTextureBuffer);
+    glGenBuffers(1, &modelIndexBuffer);
+    [self checkForError];
     
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBoxBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 72, gCubeVertexData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 108, modelVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
     glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
+    [self checkForError];
     
-    glBindBuffer(GL_ARRAY_BUFFER, _normalBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 72, gCubeNormalData, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, modelNormalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 108, modelNormals, GL_STATIC_DRAW);
     glEnableVertexAttribArray(GLKVertexAttribNormal);
     glVertexAttribPointer(GLKVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
+    [self checkForError];
     
-    glBindBuffer(GL_ARRAY_BUFFER, _textureBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 48, gCubeTexData, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, modelTextureBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 72, modelTextureData, GL_STATIC_DRAW);
     glEnableVertexAttribArray(GLKVertexAttribTexCoord0);
     glVertexAttribPointer(GLKVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), BUFFER_OFFSET(0));
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * 36, cubeIndices, GL_STATIC_DRAW);
+    [self checkForError];
     
     glBindVertexArrayOES(0);
     
@@ -415,19 +433,24 @@ GLuint cubeIndices[36] =
     leftSideTexture = [self setupTexture:@"textures/side_left.png"];
     rightSideTexture = [self setupTexture:@"textures/side_right.png"];
     crateTexture = [self setupTexture:@"textures/crate.jpg"];
+    modelTexture = [self setupTexture:@"textures/CubeNumbered4.png"];
+    
+    [self checkForError];
+    NSLog(@"1");
     glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D, crateTexture);
-    glUniform1i(uniforms[UNIFORM_TEXTURE], 0);
+    [self checkForError];
+    NSLog(@"2");
+    glUniform1i( uniforms[UNIFORM_TEXTURE], 0);
+    [self checkForError];
+    NSLog(@"3");
+    
+}
 
-    
-    //GOODBYE THERE
-    
-    
-    
-    
-    
-    
-    
+-(void)checkForError {
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        NSLog(@"OpenGL error: %d", err);
+    }
 }
 
 - (void)tearDownGL
@@ -510,7 +533,6 @@ GLuint cubeIndices[36] =
                     minimapFinal = GLKMatrix4Multiply(minimapRotate, baseMinimapViewMatrix);
                     minimapFinal = GLKMatrix4Rotate(minimapFinal, GLKMathDegreesToRadians(s * 90), 0.0f, 1.0f, 0.0f);
                 }
-
                 
                 MazeSquare *a = [squares objectAtIndex:(x * maze->mazeHeight) + y];
                 switch((SIDE)s) {
@@ -574,6 +596,7 @@ GLuint cubeIndices[36] =
     cubeRotation += 5;
     
     PlayerDataLabel.text = [NSString stringWithFormat: @"Player Position: x: %d  y: %d \nPlayer Rotation: %f", mazeXPos, mazeYPos, mazeViewRotate];
+    
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
@@ -590,8 +613,8 @@ GLuint cubeIndices[36] =
     // Render the object again with ES2
     glUseProgram(_program);
     
-    //draw the rotating cube
-    [self drawShape:crateTexture array:_vertexBoxArray vertecies:rotatingCubeVertecies normals:rotatingCubeNormals];
+    //draw the rotating model
+    [self drawShape:modelTexture array:_vertexBoxArray vertecies:rotatingCubeVertecies normals:rotatingCubeNormals];
     
     for (int x = 0; x < maze->mazeWidth; x++) {
         for (int y = 0; y < maze->mazeHeight; y++) {
@@ -659,9 +682,16 @@ GLuint cubeIndices[36] =
     glUniform4fv(uniforms[UNIFORM_SPECULAR_COMPONENT], 1, specularComponent.v);
     glUniform4fv(uniforms[UNIFORM_AMBIENT_COMPONENT], 1, ambientComponent.v);
     
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    
+    if (vArray == 1) {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    } else if (vArray == 2) {
+        [self checkForError];
+        glDrawArrays(GL_TRIANGLES, 0, 108);
+    }
 }
+
 
 - (GLuint *)getCorrectTexture:(TEXTURE_TYPE)tex {
     switch (tex) {
@@ -811,6 +841,62 @@ GLuint cubeIndices[36] =
     return YES;
 }
 
+-(void)convertModelDataToCArrays {
+    modelVertices = malloc([model->verticeIndices count] * sizeof(GLfloat) * 3);
+    if (modelVertices == NULL) {
+        NSLog(@"Error in convertModelDataToCArrays");
+    }
+    __block int i = 0;
+    for (NSNumber* index in model->verticeIndices) {
+        NSMutableArray* vertex = [model->vertices objectAtIndex:([index intValue]-1)];
+        for (NSNumber* number in vertex) {
+            modelVertices[i++] = (GLfloat)[number floatValue];
+        }
+    }
+    NSLog(@"Vertexes: %d", i);
+    
+    modelNormals = malloc([model->vertexNormalIndices count] * sizeof(GLfloat) * 3);
+    if (modelNormals == NULL) {
+        NSLog(@"Error in convertModelDataToCArrays");
+    }
+    i = 0;
+    for (NSNumber* index in model->vertexNormalIndices) {
+        NSMutableArray* vertex = [model->vertexNormals objectAtIndex:([index intValue]-1)];
+        for (NSNumber* number in vertex) {
+            modelNormals[i] = (GLfloat)[number floatValue];
+            i++;
+        }
+    }
+    NSLog(@"Normals: %d", i);
+    
+    
+    modelTextureData = malloc([model->textureIndices count] * sizeof(GLfloat) * 2);
+    if (modelTextureData == NULL) {
+        NSLog(@"Error in convertModelDataToCArrays");
+    }
+    i = 0;
+    for (NSNumber* index in model->vertexNormalIndices) {
+        NSMutableArray* vertex = [model->vertexTextures objectAtIndex:([index intValue]-1)];
+        for (NSNumber* number in vertex) {
+            modelTextureData[i] = (GLfloat)[number floatValue];
+            i++;
+        }
+    }
+    NSLog(@"Texture Data: %d", i);
+    
+    /*NSLog(@"Normals: %d", i);
+    modelIndices = malloc([modelData count] * sizeof(GLuint));
+    if (modelIndices == NULL) {
+        NSLog(@"Error in convertModelDataToCArrays");
+    }
+    i = 0;
+    [modelData enumerateObjectsWithOptions:NSEnumerationConcurrent usingBlock:^(NSNumber *number, NSUInteger idx, BOOL *stop) {
+        modelIndices[idx] = (GLuint)[number intValue];
+        i++;
+    }];*/
+    
+}
+
 - (BOOL)validateProgram:(GLuint)prog
 {
     GLint logLength, status;
@@ -839,10 +925,44 @@ GLuint cubeIndices[36] =
     mazeViewRotateTo += 90;
 }
 - (IBAction)ModelClick:(UITapGestureRecognizer *)sender {
-    CGPoint screenSize = CGPointMake([UIScreen mainScreen].bounds.size.width / 2, [UIScreen mainScreen].bounds.size.height / 2);
-    CGPoint screenClick = [sender locationInView:nil];
-    CGPoint worldPoint = CGPointMake((screenClick.x / screenSize.x) - 1, (screenClick.y / screenSize.y) - 1);
-    NSLog(@"clickX: %f clickY: %f", worldPoint.x, worldPoint.y);
+    //const CGPoint screenClick = [sender locationInView:[self view]];
+    /*GLint viewport[4];
+    //Get size of screen
+    glGetIntegerv(GL_VIEWPORT,viewport);
+    
+    GLubyte pixel[4];
+    //Read pixel from a specific point
+    glReadPixels(screenClick.x,viewport[3] - screenClick.y,1,1, GL_RGBA,GL_UNSIGNED_BYTE,(void *)pixel);
+    
+    int i;*/
+    
+    //CGPoint screenSize = CGPointMake([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+    //CGPoint screenClick = [sender locationInView:[self view]];
+    //CGPoint worldPoint = CGPointMake((screenClick.x), (screenClick.y));
+    const CGPoint screenClick = [sender locationInView:[self view]];
+    GLKView *glkView = (GLKView*)[self view];
+    UIImage *snapshot = [glkView snapshot];
+    CGImageRef cgImage = [snapshot CGImage];
+    float width = (float)CGImageGetWidth(cgImage);
+    float height = (float)CGImageGetHeight(cgImage);
+    CGDataProviderRef provider = CGImageGetDataProvider(cgImage);
+    CFDataRef bitmapData = CGDataProviderCopyData(provider);
+    const UInt8* data = CFDataGetBytePtr(bitmapData);
+    //TODO Continue here
+    float offset = ((width * screenClick.y * 3.0f) + screenClick.x * 3.0f) * 3.0f;
+    //UInt8 b = data[offset+0];
+    float b = data[(int)offset+0];
+    float g = data[(int)offset+1];
+    float r = data[(int)offset+2];
+    //float a = data[(int)offset+3];
+    CFRelease(bitmapData);
+    NSLog(@"R:%f G:%f B:%f Offset:%f", r, g, b, offset);
+    GLKVector4 objColor = GLKVector4Make(r/255.0f, g/255.0f, b/255.0f, 1.0f);
+    
+    if (objColor.r > 0.5f && objColor.g < 0.5f && objColor.b < 0.5f)
+    {
+        NSLog(@"TAPPED MOTHERFUCKER");
+    }
 }
 
 
@@ -888,10 +1008,6 @@ GLuint cubeIndices[36] =
     }
 }
 - (IBAction)DoubleTap:(UITapGestureRecognizer *)sender {
-    mazeXPos = 0;
-    mazeYPos = 2;
-    mazeViewRotate = 180;
-    mazeViewRotateTo = 180;
 }
 - (IBAction)DayNightSwitch:(UISwitch *)sender {
     isDay = sender.isOn;
