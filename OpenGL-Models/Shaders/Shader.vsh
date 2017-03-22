@@ -9,6 +9,7 @@ precision mediump float;
 attribute vec4 position;
 attribute vec3 normal;
 attribute vec2 texCoordIn;
+attribute vec4 clickPosition;
 
 varying vec3 eyeNormal;
 varying vec4 eyePos;

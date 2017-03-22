@@ -26,7 +26,7 @@ struct MazeStruct {
 
 - (MazeSquare *)getMazePosition:(int)x y:(int)y {
     MazeCell sq = maze->GetCell(y, x);
-    return [[MazeSquare alloc]init:sq.eastWallPresent left:sq.westWallPresent up:sq.northWallPresent down:sq.southWallPresent];
+    return [[MazeSquare alloc]init:sq.eastWallPresent left:sq.westWallPresent up:sq.northWallPresent down:sq.southWallPresent x:x z:y];
 }
 
 -(void)createMaze {

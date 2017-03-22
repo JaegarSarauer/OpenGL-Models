@@ -11,100 +11,47 @@
 
 @implementation AIMovement
 
-- (id)init:(MazeManager *)m {
+- (id)init:(int)mazeWidth mazeHeight:(int)mazeHeight {
     srand((uint)time(NULL));
-    maze = m;
-    xSolidPos = 0;
-    ySolidPos = 0;
-    xPos = 0;
-    yPos = 0;
-    currentSquare = [maze getMazePosition:xPos y:yPos];
+    mazeMinBounds = GLKVector3Make(-0.5, -0.5, -0.5);
+    mazeMaxBounds = GLKVector3Make(mazeWidth + 0.5, 0.5, mazeHeight + 0.5);
+    direction = GLKVector3Make(MOVE_PER_UPDATE, 0, MOVE_PER_UPDATE);
+    curPos = GLKVector3Make(0, 0, 0);
+    minBounds = GLKVector3Make(-0.2, -0.2, -0.2);
+    maxBounds = GLKVector3Make(0.2, 0.2, 0.2);
     
     return self;
 }
 
 //process movement (animation, call every update)
-//return true if it has calculated a new spot to move to
-- (bool)move {
-    bool onX = false;
-    if (xPos > xSolidPos + MOVE_PER_UPDATE) {
-        xPos -= MOVE_PER_UPDATE;
-    } else if (xPos < xSolidPos - MOVE_PER_UPDATE) {
-        xPos += MOVE_PER_UPDATE;
-    } else {
-        onX = true;
-    }
-    
-    if (yPos > ySolidPos + MOVE_PER_UPDATE) {
-        yPos -= MOVE_PER_UPDATE;
-    } else if (yPos < ySolidPos - MOVE_PER_UPDATE) {
-        yPos += MOVE_PER_UPDATE;
-    } else if (onX) {//find a new spot to move to, if on both x and y
-        [self moveToSquare];
-        return true;
-    }
-    return false;
+- (void)move {
+    curPos = GLKVector3Add(curPos, direction);
 }
 
-//move to the next square passed in
-- (void)moveToSquare {
-    int sides = 0;
-    
-    if (!currentSquare->left)
-        sides++;
-    if (!currentSquare->right)
-        sides++;
-    if (!currentSquare->up)
-        sides++;
-    if (!currentSquare->down)
-        sides++;
-    
-    int ran = rand() % sides;
-    sides = 0;
-    
-    
-    
-    if (!currentSquare->left) {
-        if (ran == sides) {
-            if ([maze isInBounds:xSolidPos - 1 y:ySolidPos]) {
-                xSolidPos -= 1;
-                currentSquare = [maze getMazePosition:xSolidPos y:ySolidPos];
-                return;
-            }
-        } else {
-            sides++;
-        }
-    }
-    if (!currentSquare->right) {
-        if (ran == sides) {
-            if ([maze isInBounds:xSolidPos + 1 y:ySolidPos]) {
-                xSolidPos += 1;
-                currentSquare = [maze getMazePosition:xSolidPos y:ySolidPos];
-                return;
-            }
-        } else {
-            sides++;
-        }
-    }
-    if (!currentSquare->up) {
-        if (ran == sides) {
-            if ([maze isInBounds:xSolidPos y:ySolidPos + 1]) {
-                ySolidPos += 1;
-                currentSquare = [maze getMazePosition:xSolidPos y:ySolidPos];
-                return;
-            }
-        } else {
-            sides++;
-        }
-    }
-    if (!currentSquare->down) {
-        if (ran == sides) {
-            if ([maze isInBounds:xSolidPos y:ySolidPos - 1]) {
-                ySolidPos -= 1;
-                currentSquare = [maze getMazePosition:xSolidPos y:ySolidPos];
-                return;
-            }
-        }
+- (GLKVector3)getMinBounds {
+    return GLKVector3Add(curPos, minBounds);
+}
+
+- (GLKVector3)getMaxBounds {
+    return GLKVector3Add(curPos, maxBounds);
+}
+
+- (void)swapDirection:(SIDE)side {
+    switch(side) {
+            case (SIDE)LEFT:
+                direction.x = fabs(direction.x);
+            break;
+            case (SIDE)RIGHT:
+                direction.x = -fabs(direction.x);
+            break;
+            case (SIDE)DOWN:
+                direction.z = -fabs(direction.z);
+            break;
+            case (SIDE)UP:
+                direction.z = fabs(direction.z);
+            break;
+            default:
+            break;
     }
 }
 

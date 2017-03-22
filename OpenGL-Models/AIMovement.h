@@ -12,33 +12,38 @@
 #import "MazeSquare.h"
 #import "MazeManager.h"
 
-static const float MOVE_PER_UPDATE = 0.05f;
+static const float MOVE_PER_UPDATE = 0.01f;
 
 @interface AIMovement : NSObject {
 @public
-    //refernce to current maze.
-    MazeManager* maze;
-
-    //current square we are at/moving to
-    MazeSquare *currentSquare;
-
-    //the rounded numbers of where the current (or moving to) maze square is
-    float xSolidPos;
-    float ySolidPos;
-
+    //direction vector, where to move on each step
+    GLKVector3 direction;
+    
     //actual position of the object using the ai, for moving smoothly
-    float xPos;
-    float yPos;
+    GLKVector3 curPos;
+    
+    //maze min and max bounds, so the model doesnt leave the world.
+    GLKVector3 mazeMinBounds;
+    GLKVector3 mazeMaxBounds;
+    
+@private
+    //collision box of this model
+    GLKVector3 minBounds;
+    GLKVector3 maxBounds;
 }
 
 //constructor
-- (id)init:(MazeManager *)m;
+- (id)init:(int)mazeWidth mazeHeight:(int)mazeHeight;
 
 //process movement (animation, call every update)
-- (bool)move;
+- (void)move;
 
-//move to the next square passed in
-- (void)moveToSquare;
+- (GLKVector3)getMinBounds;
+
+- (GLKVector3)getMaxBounds;
+
+//moves the opposite way after a collision
+- (void)swapDirection:(SIDE)side;
 
 @end
 

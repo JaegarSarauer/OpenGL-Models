@@ -266,7 +266,7 @@ GLuint cubeIndices[36] =
     maze = [[MazeManager alloc]init];
     [maze createMaze];
     
-    AI = [[AIMovement alloc] init:maze];
+    AI = [[AIMovement alloc] init:maze->mazeWidth mazeHeight:maze->mazeHeight];
     
     
     squares = [NSMutableArray arrayWithCapacity:maze->mazeWidth * maze->mazeHeight];
@@ -466,7 +466,7 @@ GLuint cubeIndices[36] =
     
     GLKMatrix4 boxMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, 0.0f);
     boxMatrix = GLKMatrix4Rotate(boxMatrix, GLKMathDegreesToRadians(mazeViewRotate), 0.0f, 1.0f, 0.0f);
-    boxMatrix = GLKMatrix4Translate(boxMatrix, (AI->xPos + mazeXPos), 0.0f, (AI->yPos + mazeYPos));
+    boxMatrix = GLKMatrix4Translate(boxMatrix, (AI->curPos.x + mazeXPos), 0.0f, (AI->curPos.z + mazeYPos));
     boxMatrix = GLKMatrix4Rotate(boxMatrix, GLKMathDegreesToRadians(cubeRotation), 1.0f, 1.0f, 1.0f);
     boxMatrix = GLKMatrix4Scale(boxMatrix, .2f, .2f, .2f);
     
@@ -555,6 +555,9 @@ GLuint cubeIndices[36] =
                             a->floorVertecies= GLKMatrix4Multiply(projectionMatrix, finalMatrix);
                         }
                         break;
+                }
+                if ([a checkCollision:(SIDE)s minBox:[AI getMinBounds] maxBox:[AI getMaxBounds]]) {
+                    [AI swapDirection:(SIDE)s];
                 }
             }
         }
