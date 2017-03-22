@@ -14,7 +14,7 @@
 - (id)init:(int)mazeWidth mazeHeight:(int)mazeHeight {
     srand((uint)time(NULL));
     mazeMinBounds = GLKVector3Make(-0.5, -0.5, -0.5);
-    mazeMaxBounds = GLKVector3Make(mazeWidth + 0.5, 0.5, mazeHeight + 0.5);
+    mazeMaxBounds = GLKVector3Make(mazeWidth - 0.5, -0.5, mazeHeight - 0.5);
     direction = GLKVector3Make(MOVE_PER_UPDATE, 0, MOVE_PER_UPDATE);
     curPos = GLKVector3Make(0, 0, 0);
     minBounds = GLKVector3Make(-0.2, -0.2, -0.2);
@@ -25,6 +25,14 @@
 
 //process movement (animation, call every update)
 - (void)move {
+    if (curPos.x <= mazeMinBounds.x)
+        [self swapDirection:LEFT];
+    if (curPos.x >= mazeMaxBounds.x)
+        [self swapDirection:RIGHT];
+    if (curPos.z <= mazeMinBounds.z)
+        [self swapDirection:UP];
+    if (curPos.z >= mazeMaxBounds.z)
+        [self swapDirection:DOWN];
     curPos = GLKVector3Add(curPos, direction);
 }
 
