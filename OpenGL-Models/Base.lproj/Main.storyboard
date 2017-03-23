@@ -83,6 +83,7 @@
                                     </label>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="0.40461793664383561" colorSpace="calibratedWhite"/>
+                                <gestureRecognizers/>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -95,6 +96,12 @@
                             <outletCollection property="gestureRecognizers" destination="L6u-j7-2Je" appends="YES" id="MJq-Ac-nXM"/>
                             <outletCollection property="gestureRecognizers" destination="h0Y-9R-Krq" appends="YES" id="wsk-NI-Iiw"/>
                             <outletCollection property="gestureRecognizers" destination="gtM-iE-2E7" appends="YES" id="lJZ-NM-hVC"/>
+                            <outletCollection property="gestureRecognizers" destination="hud-qG-vzB" appends="YES" id="IIl-iU-pUe"/>
+                            <outletCollection property="gestureRecognizers" destination="tcS-Z0-irh" appends="YES" id="F5m-YL-Hkb"/>
+                            <outletCollection property="gestureRecognizers" destination="zZW-ac-4gA" appends="YES" id="VTB-ZY-Auh"/>
+                            <outletCollection property="gestureRecognizers" destination="pMQ-zy-X28" appends="YES" id="ffV-aq-6mD"/>
+                            <outletCollection property="gestureRecognizers" destination="mAF-5m-s0e" appends="YES" id="PsN-2l-mrw"/>
+                            <outletCollection property="gestureRecognizers" destination="OUo-T7-qCA" appends="YES" id="GKd-Nq-kdp"/>
                         </connections>
                     </view>
                     <connections>
@@ -136,6 +143,36 @@
                 <swipeGestureRecognizer direction="up" id="L6u-j7-2Je" userLabel="SwipeUp">
                     <connections>
                         <action selector="SwipeUp:" destination="BV1-FR-VrT" id="qdg-IH-zp1"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="left" numberOfTouchesRequired="2" id="hud-qG-vzB" userLabel="SwipeLeftTwoFinger">
+                    <connections>
+                        <action selector="swipeLeftTwoFinger:" destination="BV1-FR-VrT" id="IPd-LA-NCs"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="right" numberOfTouchesRequired="2" id="tcS-Z0-irh" userLabel="SwipeRightTwoFinger">
+                    <connections>
+                        <action selector="swipeRightTwoFinger:" destination="BV1-FR-VrT" id="vhx-sR-3Vb"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="up" numberOfTouchesRequired="2" id="zZW-ac-4gA" userLabel="SwipeUpTwoFinger">
+                    <connections>
+                        <action selector="swipeUpTwoFinger:" destination="BV1-FR-VrT" id="BEw-Oz-Ue9"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="down" numberOfTouchesRequired="2" id="pMQ-zy-X28" userLabel="SwipeDownTwoFinger">
+                    <connections>
+                        <action selector="swipeDownTwoFinger:" destination="BV1-FR-VrT" id="SA4-ca-fbF"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="up" numberOfTouchesRequired="3" id="mAF-5m-s0e" userLabel="SwipeUpThreeFinger">
+                    <connections>
+                        <action selector="swipeUpThreeFinger:" destination="BV1-FR-VrT" id="aYq-KA-tKt"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="down" numberOfTouchesRequired="3" id="OUo-T7-qCA" userLabel="SwipeDownThreeFinger">
+                    <connections>
+                        <action selector="swipeDownThreeFinger:" destination="BV1-FR-VrT" id="uTy-so-hIT"/>
                     </connections>
                 </swipeGestureRecognizer>
             </objects>

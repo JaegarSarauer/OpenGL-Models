@@ -45,6 +45,8 @@ static const float MOVE_PER_UPDATE = 0.01f;
 //moves the opposite way after a collision
 - (void)swapDirection:(SIDE)side;
 
+-(void)setScaleFactor:(float)factor;
+
 @end
 
 

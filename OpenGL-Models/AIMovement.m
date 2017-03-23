@@ -17,9 +17,7 @@
     mazeMaxBounds = GLKVector3Make(mazeWidth - 0.5, -0.5, mazeHeight - 0.5);
     direction = GLKVector3Make(MOVE_PER_UPDATE, 0, MOVE_PER_UPDATE);
     curPos = GLKVector3Make(0, 0, 0);
-    minBounds = GLKVector3Make(-0.2, -0.2, -0.2);
-    maxBounds = GLKVector3Make(0.2, 0.2, 0.2);
-    
+    [self setScaleFactor:1.0f];
     return self;
 }
 
@@ -61,6 +59,11 @@
             default:
             break;
     }
+}
+
+-(void)setScaleFactor:(float)factor {
+    minBounds = GLKVector3Make(-0.2f * factor, -0.2f * factor, -0.2f * factor);
+    maxBounds = GLKVector3Make(0.2f * factor, 0.2f * factor, 0.2f * factor);
 }
 
 @end

@@ -242,13 +242,22 @@ GLuint cubeIndices[36] =
     GLuint modelNormalBuffer;
     GLuint modelTextureBuffer;
     GLuint modelTexture;
+    bool stationary;
+    
+    //AI manipulation
+    CGPoint dragStart;
+    float scaleFactor;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
-
+- (IBAction)swipeRightTwoFinger:(UISwipeGestureRecognizer *)sender;
+- (IBAction)swipeUpTwoFinger:(UISwipeGestureRecognizer *)sender;
+- (IBAction)swipeDownTwoFinger:(UISwipeGestureRecognizer *)sender;
+- (IBAction)swipeLeftTwoFinger:(UISwipeGestureRecognizer *)sender;
+- (IBAction)swipeUpThreeFinger:(UISwipeGestureRecognizer *)sender;
+- (IBAction)swipeDownThreeFinger:(UISwipeGestureRecognizer *)sender;
 - (void)setupGL;
 - (void)tearDownGL;
-
 - (BOOL)loadShaders;
 - (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file;
 - (BOOL)linkProgram:(GLuint)prog;
@@ -282,6 +291,8 @@ GLuint cubeIndices[36] =
     mazeYPos = 2;
     mazeViewRotate = 180;
     mazeViewRotateTo = 180;
+    stationary = false;
+    scaleFactor = 1;
     
     maze = [[MazeManager alloc]init];
     [maze createMaze];
@@ -332,6 +343,42 @@ GLuint cubeIndices[36] =
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
+}
+
+- (IBAction)swipeRightTwoFinger:(UISwipeGestureRecognizer *)sender {
+    if (stationary) {
+        cubeRotation += 15;
+    }
+}
+
+- (IBAction)swipeUpTwoFinger:(UISwipeGestureRecognizer *)sender {
+    if (stationary && scaleFactor < 1.5f) {
+        scaleFactor += 0.5f;
+    }
+}
+
+- (IBAction)swipeDownTwoFinger:(UISwipeGestureRecognizer *)sender {
+    if (stationary && scaleFactor > 0.5f) {
+        scaleFactor -= 0.5f;
+    }
+}
+
+- (IBAction)swipeLeftTwoFinger:(UISwipeGestureRecognizer *)sender {
+    if (stationary) {
+        cubeRotation -= 15;
+    }
+}
+
+- (IBAction)swipeUpThreeFinger:(UISwipeGestureRecognizer *)sender {
+    if (AI->curPos.y < 0.75f) {
+        AI->curPos = GLKVector3Make(AI->curPos.x, AI->curPos.y + 0.25f, AI->curPos.z);
+    }
+}
+
+- (IBAction)swipeDownThreeFinger:(UISwipeGestureRecognizer *)sender {
+    if (AI->curPos.y > -0.5f) {
+        AI->curPos = GLKVector3Make(AI->curPos.x, AI->curPos.y - 0.25f, AI->curPos.z);
+    }
 }
 
 - (void)setupGL
@@ -404,25 +451,21 @@ GLuint cubeIndices[36] =
     glGenBuffers(1, &modelNormalBuffer);
     glGenBuffers(1, &modelTextureBuffer);
     glGenBuffers(1, &modelIndexBuffer);
-    [self checkForError];
     
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBoxBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 108, modelVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * [model->verticeIndices count] * 3, modelVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
     glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
-    [self checkForError];
     
     glBindBuffer(GL_ARRAY_BUFFER, modelNormalBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 108, modelNormals, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * [model->vertexNormalIndices count] * 3, modelNormals, GL_STATIC_DRAW);
     glEnableVertexAttribArray(GLKVertexAttribNormal);
     glVertexAttribPointer(GLKVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), BUFFER_OFFSET(0));
-    [self checkForError];
     
     glBindBuffer(GL_ARRAY_BUFFER, modelTextureBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 72, modelTextureData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * [model->textureIndices count] * 2, modelTextureData, GL_STATIC_DRAW);
     glEnableVertexAttribArray(GLKVertexAttribTexCoord0);
     glVertexAttribPointer(GLKVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), BUFFER_OFFSET(0));
-    [self checkForError];
     
     glBindVertexArrayOES(0);
     
@@ -435,22 +478,8 @@ GLuint cubeIndices[36] =
     crateTexture = [self setupTexture:@"textures/crate.jpg"];
     modelTexture = [self setupTexture:@"textures/CubeNumbered4.png"];
     
-    [self checkForError];
-    NSLog(@"1");
     glActiveTexture(GL_TEXTURE0);
-    [self checkForError];
-    NSLog(@"2");
     glUniform1i( uniforms[UNIFORM_TEXTURE], 0);
-    [self checkForError];
-    NSLog(@"3");
-    
-}
-
--(void)checkForError {
-    GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR) {
-        NSLog(@"OpenGL error: %d", err);
-    }
 }
 
 - (void)tearDownGL
@@ -473,6 +502,42 @@ GLuint cubeIndices[36] =
     }
 }
 
+- (IBAction)doubleFingerPan:(UIPanGestureRecognizer *)sender {
+   
+}
+
+- (IBAction)pinch:(UIPinchGestureRecognizer *)sender {
+    if (stationary) {
+        if ([sender state] == UIGestureRecognizerStateBegan ||
+            [sender state] == UIGestureRecognizerStateChanged) {
+            
+            CGFloat currentScale = [[[sender view].layer valueForKeyPath:@"transform.scale"] floatValue];
+            
+            const CGFloat maxScale = 2.0;
+            const CGFloat minScale = 0.5;
+            
+            CGFloat newScale = 1 -  (scaleFactor - [sender scale]);
+            newScale = MIN(newScale, maxScale / currentScale);
+            newScale = MAX(newScale, minScale / currentScale);
+            CGAffineTransform transform = CGAffineTransformScale([[sender view] transform], newScale, newScale);
+            [sender view].transform = transform;
+            
+            scaleFactor = [sender scale];
+        }
+    }
+}
+
+- (IBAction)singleFingerPan:(UIPanGestureRecognizer *)sender {
+    CGPoint translation = [sender translationInView:self.view];
+    if (stationary) {
+        //Handle moving cube
+        if ([sender state] != UIGestureRecognizerStateBegan) {
+            cubeRotation += dragStart.x < translation.x ? 2.5f : -2.5f;
+        }
+    }
+    dragStart = translation;
+}
+
 #pragma mark - GLKView and GLKViewController delegate methods
 
 - (void)update
@@ -487,27 +552,22 @@ GLuint cubeIndices[36] =
 
     self.effect.transform.projectionMatrix = projectionMatrix;
     
-    [AI move];
-    
-    //GLKMatrix4 boxStart = GLKMatrix4MakeTranslation(mazeXPos, 0.0f, mazeYPos - 1);
-    //boxStart = GLKMatrix4Scale(boxStart, 2.0f, 2.0f, 4.0f);
-    
+    if (!stationary ) {
+        [AI move];
+    }
     GLKMatrix4 boxMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, 0.0f);
     boxMatrix = GLKMatrix4Rotate(boxMatrix, GLKMathDegreesToRadians(mazeViewRotate), 0.0f, 1.0f, 0.0f);
-    boxMatrix = GLKMatrix4Translate(boxMatrix, (AI->curPos.x + mazeXPos), 0.0f, (AI->curPos.z + mazeYPos));
-    boxMatrix = GLKMatrix4Rotate(boxMatrix, GLKMathDegreesToRadians(cubeRotation), 1.0f, 1.0f, 1.0f);
-    boxMatrix = GLKMatrix4Scale(boxMatrix, .2f, .2f, .2f);
-    
-    //boxMatrix = GLKMatrix4Multiply(boxStart, boxMatrix);
+    boxMatrix = GLKMatrix4Translate(boxMatrix, (AI->curPos.x + mazeXPos), AI->curPos.y, (AI->curPos.z + mazeYPos));
+    boxMatrix = GLKMatrix4Rotate(boxMatrix, GLKMathDegreesToRadians(cubeRotation), 0.0f, 1.0f, 0.0f);
+    boxMatrix = GLKMatrix4Scale(boxMatrix, .2f * scaleFactor, .2f * scaleFactor, .2f * scaleFactor);
+    [AI setScaleFactor:scaleFactor];
     
     rotatingCubeVertecies = GLKMatrix4Multiply(projectionMatrix, boxMatrix);
     rotatingCubeNormals = GLKMatrix3InvertAndTranspose(GLKMatrix4GetMatrix3(boxMatrix), NULL);
     
-    
     for (int x = 0; x < maze->mazeWidth; x++) {
         for (int y = 0; y < maze->mazeHeight; y++) {
             for (int s = 0; s < SQUARE_SIDES; s++) {
-                //for (int = 0; i < MazeSquare.SIDE)
                 //real position
                 GLKMatrix4 baseModelViewMatrix = GLKMatrix4MakeTranslation( mazeXPos + x, 0.0f, mazeYPos + y);
                 GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(-(mazeXPos + x), 0.0f, -(mazeYPos + y));
@@ -596,24 +656,13 @@ GLuint cubeIndices[36] =
         mazeViewRotate -= 15;
     }
     
-    cubeRotation += 5;
-    
     PlayerDataLabel.text = [NSString stringWithFormat: @"Player Position: x: %d  y: %d \nPlayer Rotation: %f", mazeXPos, mazeYPos, mazeViewRotate];
-    
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
     glClearColor(0.65f, 0.65f, 0.65f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    
-    // Render the object with GLKit
-    //[self.effect prepareToDraw];
-    
-    //glDrawArrays(GL_TRIANGLES, 0, 36);
-    
-    // Render the object again with ES2
     glUseProgram(_program);
     
     //draw the rotating model
@@ -690,7 +739,6 @@ GLuint cubeIndices[36] =
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     } else if (vArray == 2) {
-        [self checkForError];
         glDrawArrays(GL_TRIANGLES, 0, 108);
     }
 }
@@ -764,7 +812,6 @@ GLuint cubeIndices[36] =
             glDeleteProgram(_program);
             _program = 0;
         }
-        
         return NO;
     }
     
@@ -856,7 +903,6 @@ GLuint cubeIndices[36] =
             modelVertices[i++] = (GLfloat)[number floatValue];
         }
     }
-    NSLog(@"Vertexes: %d", i);
     
     modelNormals = malloc([model->vertexNormalIndices count] * sizeof(GLfloat) * 3);
     if (modelNormals == NULL) {
@@ -870,34 +916,19 @@ GLuint cubeIndices[36] =
             i++;
         }
     }
-    NSLog(@"Normals: %d", i);
-    
     
     modelTextureData = malloc([model->textureIndices count] * sizeof(GLfloat) * 2);
     if (modelTextureData == NULL) {
         NSLog(@"Error in convertModelDataToCArrays");
     }
     i = 0;
-    for (NSNumber* index in model->vertexNormalIndices) {
+    for (NSNumber* index in model->textureIndices) { //Normal indices
         NSMutableArray* vertex = [model->vertexTextures objectAtIndex:([index intValue]-1)];
         for (NSNumber* number in vertex) {
             modelTextureData[i] = (GLfloat)[number floatValue];
             i++;
         }
     }
-    NSLog(@"Texture Data: %d", i);
-    
-    /*NSLog(@"Normals: %d", i);
-    modelIndices = malloc([modelData count] * sizeof(GLuint));
-    if (modelIndices == NULL) {
-        NSLog(@"Error in convertModelDataToCArrays");
-    }
-    i = 0;
-    [modelData enumerateObjectsWithOptions:NSEnumerationConcurrent usingBlock:^(NSNumber *number, NSUInteger idx, BOOL *stop) {
-        modelIndices[idx] = (GLuint)[number intValue];
-        i++;
-    }];*/
-    
 }
 
 - (BOOL)validateProgram:(GLuint)prog
@@ -920,83 +951,140 @@ GLuint cubeIndices[36] =
     
     return YES;
 }
+
 - (IBAction)OnTap:(UITapGestureRecognizer *)sender {
     ConsoleElement.hidden = !ConsoleElement.hidden;
-        
-}
-- (IBAction)SwipeRight:(UISwipeGestureRecognizer *)sender {
-    mazeViewRotateTo += 90;
-}
-- (IBAction)ModelClick:(UITapGestureRecognizer *)sender {
-    const CGPoint screenClick = [sender locationInView:[self view]];
-    GLKView *glkView = (GLKView*)[self view];
-    UIImage *snapshot = [glkView snapshot];
-    CGImageRef cgImage = [snapshot CGImage];
-    float width = (float)CGImageGetWidth(cgImage);
-    //float height = (float)CGImageGetHeight(cgImage);
-    CGDataProviderRef provider = CGImageGetDataProvider(cgImage);
-    CFDataRef bitmapData = CGDataProviderCopyData(provider);
-    const UInt8* data = CFDataGetBytePtr(bitmapData);
-    float offset = ((width * screenClick.y * 3.0f) + screenClick.x * 3.0f) * 3.0f;
-    //UInt8 b = data[offset+0];
-    float b = data[(int)offset+0];
-    float g = data[(int)offset+1];
-    float r = data[(int)offset+2];
-    //float a = data[(int)offset+3];
-    NSLog(@"R:%f G:%f B:%f Offset:%f", r, g, b, offset);
-    GLKVector4 objColor = GLKVector4Make(r/255.0f, g/255.0f, b/255.0f, 1.0f);
-    
-    if (objColor.r > 0.5f && objColor.g < 0.5f && objColor.b < 0.5f)
-    {
-        NSLog(@"Tapped");
-    }
-    CFRelease(bitmapData);
 }
 
+- (IBAction)SwipeRight:(UISwipeGestureRecognizer *)sender {
+    if (stationary) {
+        int xOffset = 0;
+        int yOffset = 0;
+        switch((int)mazeViewRotate % 360) {
+            case 0:
+                xOffset -= 1;
+                break;
+            case 90:
+            case -270:
+                yOffset += 1;
+                break;
+            case 180:
+            case -180:
+                xOffset += 1;
+                break;
+            case 270:
+            case -90:
+                yOffset -= 1;
+                break;
+        }
+        
+        AI->curPos = GLKVector3Make(AI->curPos.x - xOffset, AI->curPos.y, AI->curPos.z - yOffset);
+    } else {
+        mazeViewRotateTo += 90;
+    }
+}
+
+- (IBAction)ModelClick:(UITapGestureRecognizer *)sender {
+    CGPoint screenClick = [sender locationInView:[self view]];
+    float height = [UIScreen mainScreen].bounds.size.height * [[UIScreen mainScreen] scale];
+    UInt8 data[4];
+    glReadPixels(screenClick.x * [[UIScreen mainScreen] scale], height - screenClick.y * [[UIScreen mainScreen] scale], 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    float totalAmount = data[0] + data[1] + data[2];
+    NSLog(@"%u %u %u %f",data[0], data[1], data[2], data[0]/totalAmount);
+    if (data[0]/totalAmount > 0.5f) {
+        stationary = !stationary;
+    }
+}
 
 - (IBAction)SwipeLeft:(UISwipeGestureRecognizer *)sender {
-    mazeViewRotateTo -= 90;
+    if (stationary) {
+        int xOffset = 0;
+        int yOffset = 0;
+        switch((int)mazeViewRotate % 360) {
+            case 0:
+                xOffset += 1;
+                break;
+            case 90:
+            case -270:
+                yOffset -= 1;
+                break;
+            case 180:
+            case -180:
+                xOffset -= 1;
+                break;
+            case 270:
+            case -90:
+                yOffset += 1;
+                break;
+        }
+        
+        AI->curPos = GLKVector3Make(AI->curPos.x - xOffset, AI->curPos.y, AI->curPos.z - yOffset);
+    } else {
+        mazeViewRotateTo -= 90;
+    }
 }
+
 - (IBAction)SwipeUp:(UISwipeGestureRecognizer *)sender {
+    int xOffset = 0;
+    int yOffset = 0;
+    
     switch((int)mazeViewRotate % 360) {
         case 0:
-            mazeYPos += 1;
+            yOffset += 1;
             break;
         case 90:
         case -270:
-            mazeXPos -= 1;
+            xOffset -= 1;
             break;
         case 180:
         case -180:
-            mazeYPos -= 1;
+            yOffset -= 1;
             break;
         case 270:
         case -90:
-            mazeXPos += 1;
+            xOffset += 1;
             break;
     }
+    
+    if (stationary) {
+        AI->curPos = GLKVector3Make(AI->curPos.x - xOffset, AI->curPos.y, AI->curPos.z - yOffset);
+    } else {
+        mazeXPos += xOffset;
+        mazeYPos += yOffset;
+    }
 }
+
 - (IBAction)SwipeDown:(UISwipeGestureRecognizer *)sender {
+    int xOffset = 0;
+    int yOffset = 0;
     switch((int)mazeViewRotate % 360) {
         case 0:
-            mazeYPos -= 1;
+            yOffset -= 1;
             break;
         case 90:
         case -270:
-            mazeXPos += 1;
+            xOffset += 1;
             break;
         case 180:
         case -180:
-            mazeYPos += 1;
+            yOffset += 1;
             break;
         case 270:
         case -90:
-            mazeXPos -= 1;
+            xOffset -= 1;
             break;
     }
+    
+    if (stationary) {
+        AI->curPos = GLKVector3Make(AI->curPos.x - xOffset, AI->curPos.y, AI->curPos.z - yOffset);
+    } else {
+        mazeXPos += xOffset;
+        mazeYPos += yOffset;
+    }
 }
-- (IBAction)DoubleTap:(UITapGestureRecognizer *)sender {
-}
+
+- (IBAction)DoubleTap:(UITapGestureRecognizer *)sender {}
+
 - (IBAction)DayNightSwitch:(UISwitch *)sender {
     isDay = sender.isOn;
     if (isDay) {
@@ -1015,12 +1103,10 @@ GLuint cubeIndices[36] =
         cutOff = 0.0;
     }
 }
+
 - (IBAction)FogSwitch:(UISwitch *)sender {
     fog = sender.isOn;
 }
-
-
-
 
 // Load in and set up texture image (adapted from Ray Wenderlich)
 - (GLuint)setupTexture:(NSString *)fileName
